@@ -20,7 +20,8 @@ app.get('/', async (req, res, next) => {
   res.send({ message: 'Awesome it works 🐻' });
 });
 
-app.use('/api/auth', require('./routes/api.route'));
+app.use('/api/auth', require('./routes/auth.api.route'));
+app.use('/api/admin', require('./routes/admin.api.route'))
 
 app.use((req, res, next) => {
   next(createError.NotFound());
