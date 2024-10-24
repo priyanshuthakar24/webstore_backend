@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
-const { handleCreateProduct } = require('../controller/admin.controller');
+const { HandleCreateProduct, FetchAllProduct, ProductDetail } = require('../controller/admin.controller');
 const upload = require('../utils/multer');
 
 router.post('/products', upload.fields([
@@ -13,6 +13,9 @@ router.post('/products', upload.fields([
     body("mrp").isNumeric().withMessage("MRP should be a number"),
     body("salePrice").isNumeric().withMessage("Sale Price should be a number"),
     body("stock").isNumeric().withMessage("Stock should be a number"),
-], handleCreateProduct)
+], HandleCreateProduct)
+
+router.get('/allproduct', FetchAllProduct);
+router.get('/productdetail', ProductDetail)
 
 module.exports = router
