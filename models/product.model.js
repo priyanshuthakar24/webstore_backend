@@ -10,7 +10,7 @@ const productSchema = new Schema({
     salePrice: { type: Number, required: true },
     stock: { type: Number, required: true },
     bulletPoints: { type: [String], required: true },
-    mainImage: { type: String, required: true }, // Cloudinary URL
-    subImages: { type: [String], required: true }, // Cloudinary URLs for sub-images
+    mainImage: { url: String, public_id: String }, // Cloudinary URL
+    subImages: [{ url: String, public_id: String }], // Cloudinary URLs for sub-images
 }, { timestamps: true });
 module.exports = mongoose.model("Product", productSchema);
