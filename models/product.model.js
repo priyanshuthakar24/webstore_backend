@@ -8,7 +8,7 @@ const productSchema = new Schema({
     category: { type: String, enum: [...newcategory], required: true },
     mrp: { type: Number, required: true },
     salePrice: { type: Number, required: true },
-    stock: { type: Number, required: true },
+    stock: [{ size: { type: String, required: true }, quantity: { type: Number, required: true } }],
     bulletPoints: { type: [String], required: true },
     mainImage: { url: String, public_id: String }, // Cloudinary URL
     subImages: [{ url: String, public_id: String }], // Cloudinary URLs for sub-images

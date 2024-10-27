@@ -1,11 +1,14 @@
 const { validationResult } = require('express-validator')
 const Product = require('../models/product.model')
 const cloudinary = require('../utils/cloudinary')
+const { array } = require('../utils/multer')
 exports.HandleCreateProduct = async (req, res, next) => {
+    console.log(req.body)
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, message: errors.array() })
+        console.log(errors.array()[0].msg)
+        return res.status(400).json({ success: false, message: errors.array()[0].msg.toString() })
     }
 
     const { name, description, category, mrp, salePrice, stock, bulletPoints } = req.body;
@@ -30,7 +33,7 @@ exports.HandleCreateProduct = async (req, res, next) => {
             category,
             mrp,
             salePrice,
-            stock,
+            stock: JSON.parse(stock),
             bulletPoints: JSON.parse(bulletPoints),
             mainImage: { url: mainImageUpload.secure_url, public_id: mainImageUpload.public_id },
             subImages: subImageUploads.map((upload) => ({ url: upload.secure_url, public_id: upload.public_id })),
@@ -80,7 +83,7 @@ exports.updateProducts = async (req, res, next) => {
 
         // Parse bullet points if they are sent as JSON
         const parsedBulletPoints = JSON.parse(bulletPoints || "[]");
-
+        const parsestockdata = JSON.parse(stock || "[]")
 
         // Retrieve the current product from the database
         const currentProduct = await Product.findById(id);
@@ -94,7 +97,7 @@ exports.updateProducts = async (req, res, next) => {
             category,
             mrp,
             salePrice,
-            stock,
+            stock: parsestockdata,
             bulletPoints: parsedBulletPoints,
         };
 
@@ -161,7 +164,7 @@ exports.updateProducts = async (req, res, next) => {
 exports.DeleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params
-        await Product.findByIdAndDelete( id );
+        await Product.findByIdAndDelete(id);
         return res.status(200).json({ message: "News removed successfully" });
     } catch (error) {
         res.status(500).json(error)

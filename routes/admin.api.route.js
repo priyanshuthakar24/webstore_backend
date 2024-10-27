@@ -12,7 +12,6 @@ router.post('/addproduct', upload.fields([
     body("category").notEmpty().withMessage("Category is required"),
     body("mrp").isNumeric().withMessage("MRP should be a number"),
     body("salePrice").isNumeric().withMessage("Sale Price should be a number"),
-    body("stock").isNumeric().withMessage("Stock should be a number"),
 ], HandleCreateProduct)
 
 router.get('/allproduct', FetchAllProduct);
