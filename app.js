@@ -21,9 +21,10 @@ app.get('/', async (req, res, next) => {
 });
 
 app.use('/api/auth', require('./routes/auth.api.route'));
-app.use('/api/admin', require('./routes/admin.api.route'))
+app.use('/api/admin', require('./routes/admin.api.route'));
+app.use('/api/cart', require('./routes/cart.api.route'));
 
-app.use((req, res, next) => {
+app.use((req, res, next) => { 
   next(createError.NotFound());
 });
 
