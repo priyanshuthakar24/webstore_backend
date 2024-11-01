@@ -4,7 +4,6 @@ const Product = require('../models/product.model');
 // Add or update item in cart
 exports.addToCart = async (req, res) => {
     const userId = req.userId; // Assuming userId is obtained from authentication middleware
-    console.log(userId);
     const { productId, quantity } = req.body;
 
     try {
@@ -48,7 +47,7 @@ exports.addToCart = async (req, res) => {
 exports.getCart = async (req, res, next) => {
     const userId = req.userId;
     try {
-        const cart = await Cart.findOne({ userId }).populate('items.productId', 'name salePrice');
+        const cart = await Cart.findOne({ userId }).populate('items.productId', 'name salePrice mainImage.url ');
         if (!cart) return res.status(404).json({ message: "Cart not found" });
         res.status(200).json(cart);
     } catch (error) {
@@ -67,7 +66,7 @@ exports.removeFromCart = async (req, res, next) => {
         cart.items = cart.items.filter(item => item.productId.toString() !== productId);
         cart.totalCost = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         await cart.save();
-        return res.status(200).json(cart);
+        return res.status(200).json({ data: cart, message: 'Product removed Sucessfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server Error' })
     }
