@@ -4,7 +4,7 @@ const Product = require('../models/product.model');
 // Add or update item in cart
 exports.addToCart = async (req, res) => {
     const userId = req.userId; // Assuming userId is obtained from authentication middleware
-    const { productId, quantity } = req.body;
+    const { productId, quantity, size } = req.body;
 
     try {
         const product = await Product.findById(productId);
@@ -18,7 +18,7 @@ exports.addToCart = async (req, res) => {
         }
 
         // Check if item already in cart
-        const existingItem = cart.items.find((item) => item.productId.toString() === productId);
+        const existingItem = cart.items.find((item) => item.productId.toString() === productId && item.size === size);
 
         if (existingItem) {
             existingItem.quantity += quantity;
@@ -27,6 +27,7 @@ exports.addToCart = async (req, res) => {
                 productId,
                 quantity,
                 price: product.salePrice,
+                size
             });
         }
 
@@ -58,12 +59,12 @@ exports.getCart = async (req, res, next) => {
 // Remove item from cart
 exports.removeFromCart = async (req, res, next) => {
     const userId = req.userId;
-    const { productId } = req.params;
+    const { productId, size } = req.body;
 
     try {
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ message: 'Cart not fouund' });
-        cart.items = cart.items.filter(item => item.productId.toString() !== productId);
+        cart.items = cart.items.filter(item => item.productId.toString() !== productId && item.size === size);
         cart.totalCost = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         await cart.save();
         return res.status(200).json({ data: cart, message: 'Product removed Sucessfully' });
