@@ -60,11 +60,11 @@ exports.getCart = async (req, res, next) => {
 exports.removeFromCart = async (req, res, next) => {
     const userId = req.userId;
     const { productId, size } = req.body;
-
+    console.log(req.body)
     try {
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ message: 'Cart not fouund' });
-        cart.items = cart.items.filter(item => item.productId.toString() !== productId && item.size === size);
+        cart.items = cart.items.filter(item =>!( item.productId.toString() === productId && item.size === size));
         cart.totalCost = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         await cart.save();
         return res.status(200).json({ data: cart, message: 'Product removed Sucessfully' });
