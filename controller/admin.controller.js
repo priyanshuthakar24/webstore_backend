@@ -76,11 +76,10 @@ exports.ProductDetail = async (req, res, next) => {
 
 exports.updateProducts = async (req, res, next) => {
     try {
-        console.log(req.body);
         const { id } = req.params
-        const { name, description, category, mrp, salePrice, stock, bulletPoints } = req.body;
+        const { name, description, category, mrp, salePrice, stock, bulletPoints, existingSubImageIds = [] } = req.body;
 
-
+        console.log(existingSubImageIds)
         // Parse bullet points if they are sent as JSON
         const parsedBulletPoints = JSON.parse(bulletPoints || "[]");
         const parsestockdata = JSON.parse(stock || "[]")
@@ -104,6 +103,7 @@ exports.updateProducts = async (req, res, next) => {
 
         // Handle main image upload and deletion of old image if needed
         if (req.files.mainImage) {
+            console.log('mainImage updated')
             if (currentProduct.mainImage.public_id) {
                 await cloudinary.uploader.destroy(currentProduct.mainImage.public_id);
             }
@@ -117,39 +117,22 @@ exports.updateProducts = async (req, res, next) => {
 
         // Handle sub-images upload and selectively update or add new sub-images
         let updatedSubImages = [...currentProduct.subImages];
-
+        // Delete removed sub-images
+        const imagesToRemove = updatedSubImages.filter(img => !existingSubImageIds.includes(img.public_id));
+        await Promise.all(imagesToRemove.map(img => cloudinary.uploader.destroy(img.public_id)));
+        // Filter out removed images from `updatedSubImages`
+        updatedSubImages = updatedSubImages.filter(img => existingSubImageIds.includes(img.public_id));
         if (req.files.subImages) {
-
-            // Delete only the replaced sub-images, if any
-            req.files.subImages.forEach((file, index) => {
-                if (updatedSubImages[index] && updatedSubImages[index].public_id) {
-                    cloudinary.uploader.destroy(updatedSubImages[index].public_id);
-                }
-            })
-            const subImageUpload = await Promise.all(
+            const subImageUploads = await Promise.all(
                 req.files.subImages.map((file) => cloudinary.uploader.upload(file.path, { folder: 'products' }))
             )
-            subImageUpload.forEach((img, index) => {
-                updatedSubImages[index] = {
-                    url: img.secure_url,
-                    public_id: img.public_id,
-                };
+            subImageUploads.forEach(upload => {
+                updatedSubImages.push({
+                    url: upload.secure_url,
+                    public_id: upload.public_id,
+                });
             });
             updatedProduct.subImages = updatedSubImages;
-            // if (currentProduct.subImages && currentProduct.subImages.length > 0) {
-            //     await Promise.all(
-            //         currentProduct.subImages.map((img) => cloudinary.uploader.destroy(img.public_id))
-            //     );
-            // }
-            //Upload new sub-images
-
-            // const subImageUpload = await Promise.all(
-            //     req.files.subImages.map((file) => cloudinary.uploader.upload(file.path, { folder: 'products' }))
-            // );
-            //     updatedProduct.subImages = subImageUpload.map((img) => ({
-            //         url: img.secure_url,
-            //         public_id: img.public_id
-            //     }));
         }
         //Find the produuct bt Id and Update
 
