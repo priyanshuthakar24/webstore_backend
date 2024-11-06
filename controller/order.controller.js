@@ -8,7 +8,6 @@ const razorpay = new Razorpay({
 
 exports.createRazorpayOrder = async (req, res, next) => {
     const { orderItems, shippingInfo, itemsPrice, taxPrice, shippingPrice, totalPrice } = req.body;
-
     try {
         // Create a new order in Razorpay with the amount and currency
         const options = {
@@ -19,7 +18,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
         const razorpayOrder = await razorpay.orders.create(options);
         // Save the order in our database with the generated Razorpay order_id
         const newOrder = new Order({
-            user: req.user._id,
+            user: req.userId,
             orderItems,
             shippingInfo,
             itemsPrice,
@@ -31,6 +30,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
                 status: 'created'
             }
         })
+
         const createdOrder = await newOrder.save();
         // Send the Razorpay order details to the frontend
         res.status(201).json({

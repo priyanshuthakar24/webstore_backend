@@ -23,6 +23,10 @@ const orderSchema = new Schema({
             price: {
                 type: Number,
                 required: true
+            },
+            size: {
+                type: String,
+                required: true
             }
         }
     ],
@@ -73,10 +77,7 @@ const orderSchema = new Schema({
     deliveredAt: {
         type: Date
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+    
+},{timestamps:true});
 
 module.exports = mongoose.model('Order', orderSchema);
