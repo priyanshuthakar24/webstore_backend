@@ -1,6 +1,8 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/orders.model');
+const Product = require('../models/product.model');
+const { validateStock } = require('../utils/validateStock ')
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -9,6 +11,11 @@ const razorpay = new Razorpay({
 exports.createRazorpayOrder = async (req, res, next) => {
     const { orderItems, shippingInfo, itemsPrice, taxPrice, shippingPrice, totalPrice } = req.body;
     try {
+
+        const isStockAvailable = await validateStock(orderItems)
+        if (!isStockAvailable) {
+            return res.status(400).json({ message: 'Insufficient stock for one or more items.' });
+        }
         // Create a new order in Razorpay with the amount and currency
         const options = {
             amount: totalPrice * 100,// Razorpay requires the amount in paisa
@@ -58,19 +65,30 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
 
         // Find the order by Razorpay order_id and update payment status
         const order = await Order.findOne({ "paymentInfo.id": order_id });
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-        if (order) {
-            order.isPaid = true;
-            order.paidAt = Date.now();
-            order.paymentInfo.status = "paid";
-            order.paymentInfo.id = payment_id;
-
-            const updatedOrder = await order.save();
-
-            res.json({ success: true, order: updatedOrder });
-        } else {
-            res.status(404).json({ success: false, message: "Order not found" });
-        }
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        order.paymentInfo.status = "paid";
+        order.paymentInfo.id = payment_id;
+        const updatedOrder = await order.save();
+        // Update the product stock based on order items
+        const updateStockPromises = order.orderItems.map(async (item) => {
+            const product = await Product.findById(item.product);
+            if (product) {
+                const stockIndex = product.stock.findIndex(stockItem => stockItem.size === item.size);
+                if (stockIndex >= 0) {
+                    product.stock[stockIndex].quantity -= item.quantity;
+                    if (product.stock[stockIndex].quantity < 0) {
+                        product.stock[stockIndex].quantity = 0; // Ensure stock doesn't go negative
+                    }
+                    await product.save();
+                }
+            }
+        });
+        await Promise.all(updateStockPromises);
+        // Notify admin of a new order
+        res.json({ success: true, order: updatedOrder });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Payment verification error', error });
     }
