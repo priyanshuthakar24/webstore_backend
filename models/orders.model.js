@@ -74,10 +74,14 @@ const orderSchema = new Schema({
         required: true,
         default: false
     },
+    status: {
+        type: String,
+        default: 'Pending'
+    },
     deliveredAt: {
         type: Date
     },
-    
-},{timestamps:true});
+
+}, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

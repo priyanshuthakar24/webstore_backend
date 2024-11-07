@@ -34,7 +34,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
             totalPrice,
             paymentInfo: {
                 id: razorpayOrder.id,
-                status: 'created'
+                status: 'pending'
             }
         })
 

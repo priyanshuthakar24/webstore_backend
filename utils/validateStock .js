@@ -1,3 +1,4 @@
+const Product = require('../models/product.model')
 exports.validateStock = async (orderItems) => {
     for (const item of orderItems) {
         const product = await Product.findById(item.product);
