@@ -2,7 +2,9 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/orders.model');
 const Product = require('../models/product.model');
+// const io = require('../app')
 const { validateStock } = require('../utils/validateStock ')
+
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -50,6 +52,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
     }
 }
 
+// verify razorypay payment using  api 
 exports.verifyRazorpayPayment = async (req, res, next) => {
     const { order_id, payment_id, razorpay_signature } = req.body;
     try {
@@ -87,9 +90,73 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             }
         });
         await Promise.all(updateStockPromises);
+        // Emit an update event to the admin via WebSocket
+        req.io.emit("orderUpdate", { message: "Order paid", order });
         // Notify admin of a new order
         res.json({ success: true, order: updatedOrder });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Payment verification error', error });
     }
 };
+
+
+// verify payment using webhook 
+exports.razorpayWebhook = async (req, res, next) => {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    // Verify Razorpay signature
+    const shasum = crypto.createHmac("sha256", secret);
+    shasum.update(JSON.stringify(req.body));
+    const digest = shasum.digest("hex");
+
+    if (digest !== req.headers["x-razorpay-signature"]) {
+        return res.status(400).json({ message: "Invalid signature" });
+    }
+    console.log('Webhook request received:', JSON.stringify(req.body, null, 2));
+    const event = req.body.event;
+
+    if (event === 'order.paid') {
+        console.log('Method  Call')
+        const { id } = req.body.payload.order.entity;
+        console.log(id)
+
+        try {
+            // Find the order in the database
+            const order = await Order.findOne({ "paymentInfo.id": id });
+            if (!order) return res.status(404).json({ message: "Order not found" });
+
+            // Update order status
+            order.isPaid = true;
+            order.paidAt = Date.now();
+            order.paymentInfo.status = "paid";
+            await order.save();
+
+            // Update product stock quantities
+            const updateStockPromises = order.orderItems.map(async (item) => {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    const stockIndex = product.stock.findIndex(stock => stock.size === item.size);
+                    if (stockIndex >= 0) {
+                        product.stock[stockIndex].quantity -= item.quantity;
+                        if (product.stock[stockIndex].quantity < 0) {
+                            product.stock[stockIndex].quantity = 0;
+                        }
+                        await product.save();
+                    }
+                }
+            });
+
+            await Promise.all(updateStockPromises);
+
+            // Emit an update event to the admin via WebSocket
+            req.io.emit("orderUpdate", { message: "Order paid", order });
+
+            res.json({ message: "Order processed and admin notified" });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error processing order" });
+        }
+    } else {
+        res.status(400).json({ message: "Unhandled event type" });
+    }
+};
+
