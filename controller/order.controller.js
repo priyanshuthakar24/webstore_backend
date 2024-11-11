@@ -160,3 +160,34 @@ exports.razorpayWebhook = async (req, res, next) => {
     }
 };
 
+
+exports.getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching orders', error });
+    }
+};
+
+exports.UpdateStatus = async (req, res) => {
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.status = status;
+
+        if (status === 'Delivered') {
+            order.deliveredAt = Date.now();
+        }
+
+        await order.save();
+        res.json({ success: true, message: 'Order status updated', order });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating order status', error });
+    }
+}
