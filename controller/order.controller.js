@@ -213,7 +213,7 @@ exports.GetOrderDetail = async (req, res, next) => {
     const id = req.query.id
     console.log(id)
     try {
-        const orderDetail = await Order.findById(id).populate('orderItems.product', 'name salePrice mainImage.url')
+        const orderDetail = await Order.findById(id).populate('orderItems.product user', 'name salePrice mainImage.url name email')
         return res.status(200).json(orderDetail)
     } catch (error) {
         res.status(500).json(error)
