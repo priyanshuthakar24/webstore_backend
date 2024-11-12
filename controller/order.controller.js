@@ -118,7 +118,7 @@ exports.razorpayWebhook = async (req, res, next) => {
         console.log('Method  Call')
         const { id } = req.body.payload.order.entity;
         console.log(id)
-
+        // acc_PHbrskzjyhyzI8
         try {
             // Find the order in the database
             const order = await Order.findOne({ "paymentInfo.id": id });
@@ -162,9 +162,25 @@ exports.razorpayWebhook = async (req, res, next) => {
 
 
 exports.getAllOrders = async (req, res) => {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const skip = (page - 1) * limit;
     try {
-        const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
-        res.json(orders);
+        const orders = await Order.find().populate('user', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const totalCount = await Order.countDocuments();
+        // console.log(orders)
+        const result = orders.map((order) => (
+            {
+                orderId: order._id,
+                customerName: order.user.name,
+                orderDate: order.createdAt.toLocaleDateString(),
+                paymentId: order.paymentInfo.id,
+                paymentStatus: order.paymentInfo.status,
+                totalAmount: order.totalPrice,
+                shippingStatus: order.status
+            }
+        ))
+        res.status(200).json({ result, totalCount });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching orders', error });
     }
@@ -189,5 +205,17 @@ exports.UpdateStatus = async (req, res) => {
         res.json({ success: true, message: 'Order status updated', order });
     } catch (error) {
         res.status(500).json({ message: 'Error updating order status', error });
+    }
+}
+
+
+exports.GetOrderDetail = async (req, res, next) => {
+    const id = req.query.id
+    console.log(id)
+    try {
+        const orderDetail = await Order.findById(id).populate('orderItems.product', 'name salePrice mainImage.url')
+        return res.status(200).json(orderDetail)
+    } catch (error) {
+        res.status(500).json(error)
     }
 }
