@@ -76,7 +76,13 @@ const orderSchema = new Schema({
     },
     status: {
         type: String,
-        default: 'Pending'
+        default: 'Pending',
+        enum: ["Pending", "Packed", "Shipping", "Delivered"]
+    },
+    LogisticDetail: {
+        logisticsName: { type: String },
+        trackId: { type: String },
+        paymentType: { type: String }
     },
     deliveredAt: {
         type: Date

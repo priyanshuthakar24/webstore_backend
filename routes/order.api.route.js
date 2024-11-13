@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { createRazorpayOrder, verifyRazorpayPayment, razorpayWebhook, getAllOrders, UpdateStatus, GetOrderDetail } = require('../controller/order.controller')
+const { createRazorpayOrder, verifyRazorpayPayment, razorpayWebhook, getAllOrders, UpdateStatus, GetOrderDetail, UpdateLogistics } = require('../controller/order.controller')
 const { verifyToken } = require('../middleware/verifyToken');
 
 
@@ -11,4 +11,5 @@ router.get('/admin/orders', getAllOrders);
 // Update order status
 router.put('/admin/:id/status', UpdateStatus)
 router.get('/admin', GetOrderDetail)
+router.put('/admin/logisticsdetail', UpdateLogistics)
 module.exports = router

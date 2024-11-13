@@ -166,14 +166,14 @@ exports.getAllOrders = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10
     const skip = (page - 1) * limit;
     try {
-        const orders = await Order.find().populate('user', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit);
-        const totalCount = await Order.countDocuments();
+        const orders = await Order.find({ isPaid: true }).populate('user', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const totalCount = await Order.find({ isPaid: true }).countDocuments();
         // console.log(orders)
         const result = orders.map((order) => (
             {
                 orderId: order._id,
                 customerName: order.user.name,
-                orderDate: order.createdAt.toLocaleDateString(),
+                orderDate: order.paidAt.toLocaleString(),
                 paymentId: order.paymentInfo.id,
                 paymentStatus: order.paymentInfo.status,
                 totalAmount: order.totalPrice,
@@ -188,7 +188,7 @@ exports.getAllOrders = async (req, res) => {
 
 exports.UpdateStatus = async (req, res) => {
     const { status } = req.body;
-
+    console.log(status)
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
@@ -215,6 +215,19 @@ exports.GetOrderDetail = async (req, res, next) => {
     try {
         const orderDetail = await Order.findById(id).populate('orderItems.product user', 'name salePrice mainImage.url name email')
         return res.status(200).json(orderDetail)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+
+exports.UpdateLogistics = async (req, res, next) => {
+    const values = req.body
+    const id = req.query.id
+    const LogisticDetail = values
+    try {
+        const orderdata = await Order.findByIdAndUpdate(id, LogisticDetail, { new: true })
+        // if (!orderdata) return res.status(404).json("No Order Found!")F
+        res.status(200).json({ success: true, message: 'Detail updated' })
     } catch (error) {
         res.status(500).json(error)
     }
