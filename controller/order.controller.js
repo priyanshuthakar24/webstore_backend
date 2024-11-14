@@ -117,8 +117,8 @@ exports.razorpayWebhook = async (req, res, next) => {
     if (event === 'order.paid') {
         console.log('Method  Call')
         const { id } = req.body.payload.order.entity;
-        console.log(id)
-        // acc_PHbrskzjyhyzI8
+        const { method, contact, card } = req.body.payload.payment.entity;
+        console.log(contact)
         try {
             // Find the order in the database
             const order = await Order.findOne({ "paymentInfo.id": id });
@@ -128,6 +128,9 @@ exports.razorpayWebhook = async (req, res, next) => {
             order.isPaid = true;
             order.paidAt = Date.now();
             order.paymentInfo.status = "paid";
+            order.paymentInfo.method = method;
+            order.paymentInfo.contact = contact;
+            order.paymentInfo.cardlast4 = card?.last4
             await order.save();
 
             // Update product stock quantities
@@ -146,9 +149,9 @@ exports.razorpayWebhook = async (req, res, next) => {
             });
 
             await Promise.all(updateStockPromises);
-
+            const allorder = await Order.find({ isPaid: true }).populate('user', 'name').sort({ createdAt: -1 }).skip(0).limit(10);
             // Emit an update event to the admin via WebSocket
-            req.io.emit("orderUpdate", { message: "Order paid", order });
+            req.io.emit("orderUpdate", { message: "Order paid", allorder });
 
             res.json({ message: "Order processed and admin notified" });
         } catch (error) {
@@ -224,10 +227,13 @@ exports.UpdateLogistics = async (req, res, next) => {
     const values = req.body
     const id = req.query.id
     const LogisticDetail = values
+    // console.log(values)
     try {
-        const orderdata = await Order.findByIdAndUpdate(id, LogisticDetail, { new: true })
+        const orderdata = await Order.findById(id)
+        orderdata.LogisticDetail = LogisticDetail
         // if (!orderdata) return res.status(404).json("No Order Found!")F
-        res.status(200).json({ success: true, message: 'Detail updated' })
+        await orderdata.save();
+        res.status(200).json({ success: true, message: 'Detail updated', data: orderdata.LogisticDetail })
     } catch (error) {
         res.status(500).json(error)
     }

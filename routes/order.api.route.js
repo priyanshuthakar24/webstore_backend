@@ -11,5 +11,5 @@ router.get('/admin/orders', getAllOrders);
 // Update order status
 router.put('/admin/:id/status', UpdateStatus)
 router.get('/admin', GetOrderDetail)
-router.put('/admin/logisticsdetail', UpdateLogistics)
+router.post('/admin/logisticsdetail', UpdateLogistics)
 module.exports = router

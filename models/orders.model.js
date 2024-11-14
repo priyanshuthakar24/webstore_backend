@@ -38,7 +38,10 @@ const orderSchema = new Schema({
     },
     paymentInfo: {
         id: { type: String },// Razorpay Payment ID or other payment gateway ID
-        status: { type: String }// Payment status (e.g., "paid", "pending")
+        status: { type: String },// Payment status (e.g., "paid", "pending")
+        method: { type: String },
+        contact: { type: String },
+        cardlast4: { type: Number }
     },
     itemsPrice: {
         type: Number,
