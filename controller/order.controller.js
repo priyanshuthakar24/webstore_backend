@@ -2,6 +2,7 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/orders.model');
 const Product = require('../models/product.model');
+const Notification = require('../models/notification.model');
 // const io = require('../app')
 const { validateStock } = require('../utils/validateStock ')
 
@@ -121,7 +122,7 @@ exports.razorpayWebhook = async (req, res, next) => {
         console.log(contact)
         try {
             // Find the order in the database
-            const order = await Order.findOne({ "paymentInfo.id": id });
+            const order = await Order.findOne({ "paymentInfo.id": id }).populate('user', 'name');
             if (!order) return res.status(404).json({ message: "Order not found" });
 
             // Update order status
@@ -149,9 +150,21 @@ exports.razorpayWebhook = async (req, res, next) => {
             });
 
             await Promise.all(updateStockPromises);
-            const allorder = await Order.find({ isPaid: true }).populate('user', 'name').sort({ createdAt: -1 }).skip(0).limit(10);
+            // Notify admin of a new order
+            const ordermessage = `New Order Arrived # ${order._id}`
+            const notification = new Notification({ message: ordermessage, orderId: order._id });
+            await notification.save();
+            const result = {
+                orderId: order._id,
+                customerName: order.user.name,
+                orderDate: order.paidAt.toLocaleString(),
+                paymentId: order.paymentInfo.id,
+                paymentStatus: order.paymentInfo.status,
+                totalAmount: order.totalPrice,
+                shippingStatus: order.status
+            }
             // Emit an update event to the admin via WebSocket
-            req.io.emit("orderUpdate", { message: "Order paid", allorder });
+            req.io.emit("orderUpdate", { message: "Order paid", result });
 
             res.json({ message: "Order processed and admin notified" });
         } catch (error) {
