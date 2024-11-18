@@ -8,8 +8,9 @@ router.post('/verify-payment', verifyToken, verifyRazorpayPayment)
 router.post('/webhook/razorpay', razorpayWebhook)
 
 router.get('/admin/orders', getAllOrders);
+router.get('/admin/orderdetail', GetOrderDetail)
+
 // Update order status
 router.put('/admin/:id/status', UpdateStatus)
-router.get('/admin', GetOrderDetail)
 router.post('/admin/logisticsdetail', UpdateLogistics)
 module.exports = router

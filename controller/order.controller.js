@@ -54,6 +54,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
 }
 
 // verify razorypay payment using  api 
+// //!if the webhook is not working than 
 exports.verifyRazorpayPayment = async (req, res, next) => {
     const { order_id, payment_id, razorpay_signature } = req.body;
     try {
@@ -176,7 +177,7 @@ exports.razorpayWebhook = async (req, res, next) => {
     }
 };
 
-
+// get the all order list 
 exports.getAllOrders = async (req, res) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
@@ -202,6 +203,7 @@ exports.getAllOrders = async (req, res) => {
     }
 };
 
+// update the order shipping status 
 exports.UpdateStatus = async (req, res) => {
     const { status } = req.body;
     console.log(status)
@@ -224,10 +226,9 @@ exports.UpdateStatus = async (req, res) => {
     }
 }
 
-
+// Get the order detail 
 exports.GetOrderDetail = async (req, res, next) => {
     const id = req.query.id
-    console.log(id)
     try {
         const orderDetail = await Order.findById(id).populate('orderItems.product user', 'name salePrice mainImage.url name email')
         return res.status(200).json(orderDetail)
@@ -240,7 +241,6 @@ exports.UpdateLogistics = async (req, res, next) => {
     const values = req.body
     const id = req.query.id
     const LogisticDetail = values
-    // console.log(values)
     try {
         const orderdata = await Order.findById(id)
         orderdata.LogisticDetail = LogisticDetail

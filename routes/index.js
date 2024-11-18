@@ -11,5 +11,5 @@ module.exports = (app, io) => {
     app.use('/api/admin', adminRoutes);
     app.use('/api/cart', cartRoutes);
     app.use('/api/order', orderRoutes);
-    app.use('/api/admin/order', Notification)
+    app.use('/api/admin/notification', Notification)
 };

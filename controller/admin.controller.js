@@ -1,9 +1,8 @@
 const { validationResult } = require('express-validator')
 const Product = require('../models/product.model')
 const cloudinary = require('../utils/cloudinary')
-const { array } = require('../utils/multer')
+
 exports.HandleCreateProduct = async (req, res, next) => {
-    console.log(req.body)
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
