@@ -50,6 +50,22 @@ exports.getCart = async (req, res, next) => {
     try {
         const cart = await Cart.findOne({ userId }).populate('items.productId', 'name salePrice mainImage.url ');
         if (!cart) return res.status(404).json({ message: "Cart not found" });
+        let updatedTotalCost = 0;
+
+        // Sync cart item prices with the latest product prices
+        for (let item of cart.items) {
+            const product = item.productId; // Populated product details
+            if (product) {
+                item.price = product.salePrice; // Update the item price with the latest product price
+                updatedTotalCost += item.price * item.quantity; // Calculate the updated total cost
+            }
+        }
+
+        cart.totalCost = updatedTotalCost; // Update the cart total cost
+        await cart.save(); // Save the updated cart with the new prices and total cost
+
+        await cart.save(); // Save the updated cart
+
         res.status(200).json(cart);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' })
@@ -64,7 +80,7 @@ exports.removeFromCart = async (req, res, next) => {
     try {
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ message: 'Cart not fouund' });
-        cart.items = cart.items.filter(item =>!( item.productId.toString() === productId && item.size === size));
+        cart.items = cart.items.filter(item => !(item.productId.toString() === productId && item.size === size));
         cart.totalCost = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         await cart.save();
         return res.status(200).json({ data: cart, message: 'Product removed Sucessfully' });
