@@ -251,3 +251,10 @@ exports.UpdateLogistics = async (req, res, next) => {
         res.status(500).json(error)
     }
 }
+
+exports.GetUserOrder = async (req, res, next) => {
+    const user = req.userId;
+    const orderdata = await Order.find({ user, isPaid: true }).limit(2).sort({ createdAt: -1 }).populate('orderItems.product', 'mainImage.url name')
+    if (!orderdata) res.status(200).json({ success: false, message: "No order Found" })
+    res.status(200).json(orderdata)
+}
