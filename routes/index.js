@@ -4,6 +4,7 @@ const adminRoutes = require('./admin.api.route');
 const cartRoutes = require('./cart.api.route');
 const orderRoutes = require('./order.api.route');
 const Notification = require('./notification.api.route')
+const Wishlist = require('../routes/wishlist.route');
 // const { razorpayWebhook } = require('../controllers/webhookController');
 
 module.exports = (app, io) => {
@@ -11,5 +12,6 @@ module.exports = (app, io) => {
     app.use('/api/admin', adminRoutes);
     app.use('/api/cart', cartRoutes);
     app.use('/api/order', orderRoutes);
-    app.use('/api/admin/notification', Notification)
+    app.use('/api/admin/notification', Notification);
+    app.use('/api/wishlist', Wishlist);
 };
