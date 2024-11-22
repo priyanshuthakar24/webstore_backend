@@ -90,7 +90,17 @@ const orderSchema = new Schema({
     deliveredAt: {
         type: Date
     },
-
+    // Add this field for easier searching by last 6 characters of the ObjectId
+    lastSixOfId: {
+        type: String,
+        index: true, // Add an index for efficient search
+    },
 }, { timestamps: true });
+
+// Middleware to automatically populate `lastSixOfId` before saving
+orderSchema.pre('save', function (next) {
+    this.lastSixOfId = this._id.toString().slice(-6); // Extract last 6 characters of ObjectId
+    next();
+});
 
 module.exports = mongoose.model('Order', orderSchema);

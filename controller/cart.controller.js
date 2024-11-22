@@ -49,7 +49,7 @@ exports.getCart = async (req, res, next) => {
     const userId = req.userId;
     try {
         const cart = await Cart.findOne({ userId }).populate('items.productId', 'name salePrice mainImage.url ');
-        if (!cart) return res.status(404).json({ message: "Cart not found" });
+        if (!cart) return res.status(201).json({ message: "Cart not found", cart: { items: [], totalCost: 0 } });
         let updatedTotalCost = 0;
 
         // Sync cart item prices with the latest product prices
@@ -62,8 +62,6 @@ exports.getCart = async (req, res, next) => {
         }
 
         cart.totalCost = updatedTotalCost; // Update the cart total cost
-        await cart.save(); // Save the updated cart with the new prices and total cost
-
         await cart.save(); // Save the updated cart
 
         res.status(200).json(cart);
@@ -76,7 +74,6 @@ exports.getCart = async (req, res, next) => {
 exports.removeFromCart = async (req, res, next) => {
     const userId = req.userId;
     const { productId, size } = req.body;
-    console.log(req.body)
     try {
         const cart = await Cart.findOne({ userId });
         if (!cart) return res.status(404).json({ message: 'Cart not fouund' });

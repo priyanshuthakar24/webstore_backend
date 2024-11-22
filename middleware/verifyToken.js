@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 exports.verifyToken = async (req, res, next) => {
     const token = await req.cookies.token;
-    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized -no token provided' });
+    if (!token) return res.status(401).json({ success: false, message: 'Please Login !' });
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -13,4 +13,15 @@ exports.verifyToken = async (req, res, next) => {
         console.log("Error in verifyToken", error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
-}   
+}
+
+exports.VerifyAdmin = async (req, res, next) => {
+    const token = await req.cookies.token;
+    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized only admin can access this!' });
+
+    try {
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Server Error' })
+    }
+}
