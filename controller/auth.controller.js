@@ -34,7 +34,7 @@ exports.signup = async (req, res, next) => {
         });
         await user.save();
         //jwt
-        generateTokenAndSetCookie(res, user._id);
+        generateTokenAndSetCookie(res, user._id, user.isAdmin);
         await sendVerificationEmail(user.email, verificationToken);
         res.status(201).json({
             success: true,
@@ -104,7 +104,7 @@ exports.login = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Invalid Credentials' });
         }
 
-        generateTokenAndSetCookie(res, user._id);
+        generateTokenAndSetCookie(res, user._id, user.isAdmin);
         user.lastLogin = new Date();
         await user.save();
 

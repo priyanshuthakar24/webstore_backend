@@ -1,18 +1,18 @@
 const router = require('express').Router();
 const { createRazorpayOrder, verifyRazorpayPayment, razorpayWebhook, getAllOrders, UpdateStatus, GetOrderDetail, UpdateLogistics, GetUserOrder } = require('../controller/order.controller')
-const { verifyToken } = require('../middleware/verifyToken');
+const { verifyToken, VerifyAdmin } = require('../middleware/verifyToken');
 
 
 router.post('/create-order', verifyToken, createRazorpayOrder)
 router.post('/verify-payment', verifyToken, verifyRazorpayPayment)
 router.post('/webhook/razorpay', razorpayWebhook)
 
-router.get('/admin/orders', getAllOrders);
-router.get('/admin/orderdetail', GetOrderDetail)
+router.get('/admin/orders', VerifyAdmin, getAllOrders);
+router.get('/admin/orderdetail', VerifyAdmin, GetOrderDetail)
 
 // Update order status
-router.put('/admin/:id/status', UpdateStatus)
-router.post('/admin/logisticsdetail', UpdateLogistics)
+router.put('/admin/:id/status', VerifyAdmin, UpdateStatus)
+router.post('/admin/logisticsdetail', VerifyAdmin, UpdateLogistics)
 
 
 // user orderdata 
