@@ -152,7 +152,7 @@ exports.razorpayWebhook = async (req, res, next) => {
 
             await Promise.all(updateStockPromises);
             // Notify admin of a new order
-            const ordermessage = `New Order Arrived # ${order._id}`
+            const ordermessage = `New Order Arrived # ${order.lastSixOfId}`
             const notification = new Notification({ message: ordermessage, orderId: order._id });
             await notification.save();
             const result = {
