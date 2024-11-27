@@ -1,9 +1,8 @@
 const { validationResult } = require('express-validator')
 const Product = require('../models/product.model')
 const cloudinary = require('../utils/cloudinary')
-const { array } = require('../utils/multer')
+
 exports.HandleCreateProduct = async (req, res, next) => {
-    console.log(req.body)
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -54,7 +53,7 @@ exports.FetchAllProduct = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     try {
-        const productlist = await Product.find().sort("-createdAt").skip(skip).limit(limit)
+        const productlist = await Product.find().sort("-createdAt").skip(skip).limit(limit).select('name description mainImage category mrp salePrice')
         const totalCount = await Product.countDocuments();
         return res.status(200).json({ productlist, totalCount })
     } catch (error) {
