@@ -93,7 +93,7 @@ const orderSchema = new Schema({
     },
     lastSixOfId: {
         type: String,
-        index: true, // Add an index for efficient search
+        index: true,
     },
 }, { timestamps: true });
 

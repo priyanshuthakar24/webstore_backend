@@ -3,35 +3,34 @@ const { login, signup, logout, verifyEmail, forgotPassword, resetPassword, check
 const { verifyToken } = require('../middleware/verifyToken');
 const { body } = require('express-validator');
 
-router.get('/', async (req, res, next) => {
-  res.send({ message: 'Ok api is working 🚀' });
-});
+//? '/api/auth/...'
 
+//! Check the user token is Vaid or not also update the user data when user Refresh the Page 
 router.get('/check-auth', verifyToken, checkAuth);
 
-//? Signup
+//! User Signup
 router.post('/signup', [
   body('email').isEmail().withMessage('Is not a Valid Email'),
   body('password').isLength({ min: 6 }).withMessage('Password is must be at least 6 characters'),
   body('name').isLength({ min: 3 }).withMessage('Minimum 3 character are required and no Numeric character ')
 ], signup);
 
-//? Login
+//! User Login
 router.post('/login', [
   body('email').isEmail().withMessage('Is not a valid Email'),
   body('password').isLength({ min: 6 }).withMessage('Password is must be at least 6 characters')
 ], login);
 
-//? Logout
+//! User Logout
 router.post('/logout', logout);
 
-//? Verify-Email
+//! User Verify-Email
 router.post('/verify-email', verifyEmail);
 
-//? Forget-Password
+//! User Forget-Password
 router.post('/forgot-password', [body('email').isEmail().withMessage('Is not a valid email')], forgotPassword);
 
-//? Reset-Password
+//! User Reset-Password
 router.post('/reset-password/:token', [body('password').isLength({ min: 6 }).withMessage('Password is must be at least 6 characters')], resetPassword);
 
 

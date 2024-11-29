@@ -27,7 +27,13 @@ const userschema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    wishlist: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        }
+    ],
+
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     verificationToken: String,

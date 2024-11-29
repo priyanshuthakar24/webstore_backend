@@ -1,6 +1,6 @@
-const { validationResult } = require('express-validator')
-const Product = require('../models/product.model')
-const cloudinary = require('../utils/cloudinary')
+const Product = require('../models/product.model');
+const { validationResult } = require('express-validator');
+const cloudinary = require('../utils/cloudinary');
 
 exports.HandleCreateProduct = async (req, res, next) => {
     const errors = validationResult(req);
@@ -107,7 +107,7 @@ exports.updateProducts = async (req, res, next) => {
                 await cloudinary.uploader.destroy(currentProduct.mainImage.public_id);
             }
 
-            const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path, { folder: 'proudcts' });
+            const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path, { folder: 'products' });
             updatedProduct.mainImage = {
                 url: mainImageUpload.url,
                 public_id: mainImageUpload.public_id

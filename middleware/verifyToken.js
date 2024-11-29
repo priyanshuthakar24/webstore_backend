@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+//! Verify the user token is valid or not 
 exports.verifyToken = async (req, res, next) => {
     const token = await req.cookies.token;
     if (!token) return res.status(401).json({ success: false, message: 'Please Login !' });
@@ -10,11 +11,11 @@ exports.verifyToken = async (req, res, next) => {
         req.userId = decoded.userId;
         next();
     } catch (error) {
-        console.log("Error in verifyToken", error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 }
 
+//! Verify the User Token is Valid or Not ALso Check For the Admin Role 
 exports.VerifyAdmin = async (req, res, next) => {
     const token = await req.cookies.token;
     if (!token) return res.status(401).json({ success: false, message: 'Unauthorized only admin can access this!' });

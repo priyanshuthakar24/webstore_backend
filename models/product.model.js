@@ -21,6 +21,8 @@ const productSchema = new Schema({
             createdAt: { type: Date, default: Date.now },
         }
     ],
-    averageRating: { type: Number, default: 0 }, // New field
+    averageRating: { type: Number, default: 0 },
 }, { timestamps: true });
+
+
 module.exports = mongoose.model("Product", productSchema);

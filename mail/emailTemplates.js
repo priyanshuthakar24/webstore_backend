@@ -141,8 +141,8 @@ exports.WELOCME_EMAIL = `<!DOCTYPE html>
 <body>
 
   <div class="container">
-    <h1>Welcome, {{name}}!</h1>
-    <p>We're excited to have you onboard. Your email <strong>{{email}}</strong> has been successfully registered with us.</p>
+    <h1>Welcome, {name}!</h1>
+    <p>We're excited to have you onboard. Your email <strong>{email}</strong> has been successfully registered with us.</p>
     <p>Feel free to explore our platform and reach out if you have any questions. We're here to help you every step of the way.</p>
     <a href="https://yourwebsite.com" class="button">Get Started</a>
     <p>Looking forward to seeing you soon!</p>
