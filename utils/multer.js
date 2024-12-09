@@ -4,13 +4,13 @@ const path = require("path");
 
 const storage = multer.diskStorage({
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + Math.random() + path.extname(file.originalname));
     }
 });
 // Multer file filter for images only
 
 const fileFilter = (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png/;
+    const fileTypes = /jpeg|jpg|png|webp/;
     const extname = fileTypes.test(path.extname(file.originalname).toLocaleLowerCase());
     const mimetype = fileTypes.test(file.mimetype);
 
@@ -24,4 +24,4 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter })
 
-module.exports=upload;
+module.exports = upload;

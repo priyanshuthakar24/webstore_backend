@@ -1,8 +1,14 @@
 const router = require('express').Router();
-const { body } = require('express-validator');
 const { HandleCreateProduct, FetchAllProduct, ProductDetail, updateProducts, DeleteProduct } = require('../controller/admin.controller');
+
 const upload = require('../utils/multer');
 const { VerifyAdmin } = require('../middleware/verifyToken')
+
+const { body } = require('express-validator');
+
+//? '/api/admin/...'
+
+//! Add New Product
 router.post('/addproduct', VerifyAdmin, upload.fields([
     { name: "mainImage", maxCount: 1 },
     { name: "subImages", maxCount: 3 },
@@ -14,11 +20,18 @@ router.post('/addproduct', VerifyAdmin, upload.fields([
     body("salePrice").isNumeric().withMessage("Sale Price should be a number"),
 ], HandleCreateProduct)
 
-router.get('/allproduct', VerifyAdmin, FetchAllProduct);
-router.get('/productdetail', VerifyAdmin, ProductDetail);
+//! Update the Product Detail
 router.put('/products/:id', VerifyAdmin, upload.fields([{ name: 'mainImage', maxCount: 1 },
 { name: 'subImages', maxCount: 3 }
 ]), updateProducts);
+
+//! Delete Produt 
 router.delete('/deleteproduct/:id', VerifyAdmin, DeleteProduct);
+
+//! Get All Product For Admin
+router.get('/allproduct', VerifyAdmin, FetchAllProduct);
+
+//! Get Product Detail
+router.get('/productdetail', VerifyAdmin, ProductDetail);
 
 module.exports = router

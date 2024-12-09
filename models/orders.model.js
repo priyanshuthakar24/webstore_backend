@@ -91,10 +91,9 @@ const orderSchema = new Schema({
     deliveredAt: {
         type: Date
     },
-    // Add this field for easier searching by last 6 characters of the ObjectId
     lastSixOfId: {
         type: String,
-        index: true, // Add an index for efficient search
+        index: true,
     },
 }, { timestamps: true });
 

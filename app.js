@@ -5,24 +5,34 @@ const morgan = require('morgan');
 const cors = require('cors');
 const socketIO = require('socket.io');
 require('dotenv').config();
+
 const { connectDB } = require('./db/connectDB');
 const cookie_parser = require('cookie-parser');
+
 const app = express();
+
+//! core config 
 app.use(cors({
   origin: `${process.env.CLIENT_URL}`, // Your React app's URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
+//! Get parse the json data 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
+
+//! Get the browser cookie data 
 app.use(cookie_parser());
+
+// ! Test route for
 app.get('/', async (req, res, next) => {
   res.send({ message: 'Awesome it works 🐻' });
 });
 
-// Create HTTP server and integrate with Socket.IO
+//! Create HTTP server and integrate with Socket.IO
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
@@ -31,7 +41,8 @@ const io = socketIO(server, {
     credentials: true,
   },
 });
-// Socket.IO connection setup
+
+//! Socket.IO connection setup
 io.on('connection', (socket) => {
   console.log('A client connected:', socket.id);
 
@@ -41,12 +52,16 @@ io.on('connection', (socket) => {
   });
 });
 
-// Initialize routes with io instance
+//! Initialize routes with io instance
 app.use((req, res, next) => {
   req.io = io
   return next()
 })
-require('./routes')(app, io); // Pass io to routes
+
+//! All the route 
+require('./routes')(app);
+
+//! Global error Handleing 
 app.use((req, res, next) => {
   next(createError.NotFound());
 });
@@ -62,6 +77,8 @@ app.use((err, req, res, next) => {
 
 
 const PORT = process.env.PORT || 3000;
+
+//! Express and Io start Script 
 server.listen(PORT, () => {
   connectDB();
   console.log(`🚀 @ http://localhost:${PORT}`)

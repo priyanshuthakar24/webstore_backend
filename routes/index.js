@@ -8,9 +8,8 @@ const WishlistRoute = require('./wishlist.api.route');
 const SearchRoute = require('./search.api.route');
 const UserRoute = require('./user.api.route');
 const ReviewRoute = require('./review.api.route');
-// const { razorpayWebhook } = require('../controllers/webhookController');
 
-module.exports = (app, io) => {
+module.exports = (app) => {
     app.use('/api/user', UserRoute)
     app.use('/api/auth', authRoutes);
     app.use('/api/admin', adminRoutes);

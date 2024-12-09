@@ -8,7 +8,7 @@ exports.AddReview = async (req, res, nexxt) => {
     // Check if the user has purchased the product
     const hasPurchased = await Order.findOne({
         user: userId,
-        "items.product": productId, // Assuming `items` contains an array of products in the order
+        "orderItems.product": productId, // Assuming `items` contains an array of products in the order
     });
     if (!hasPurchased) {
         return res.status(403).json({ message: "You can only review products you have purchased." });

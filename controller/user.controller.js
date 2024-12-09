@@ -6,7 +6,7 @@ exports.GetAllProduct = async (req, res, next) => {
     const skip = (page - 1) * limit;
     try {
         try {
-            const productlist = await Product.find().sort("-createdAt").skip(skip).limit(10).select('name description mainImage category mrp salePrice averageRating createdAt')
+            const productlist = await Product.find().sort("-createdAt").skip(skip).limit(10).select('name description mainImage category mrp salePrice averageRating createdAt reviews')
             const totalCount = await Product.countDocuments();
             return res.status(200).json({ productlist, totalCount })
         } catch (error) {
